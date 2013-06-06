@@ -3,7 +3,6 @@ import qualified Data.Map as Map
 import Network (withSocketsDo, connectTo, PortID(..))
 import System.IO (hSetBuffering, hGetLine, hPutStrLn, BufferMode(..), Handle)
 import System.Environment (getArgs)
-import System.Exit (exitWith, ExitCode(ExitSuccess))
 
 emptyBoard :: Board
 emptyBoard = Map.empty
@@ -11,7 +10,7 @@ emptyBoard = Map.empty
 main :: IO ()
 main = withSocketsDo $ do
   args <- getArgs
-  let port = fromIntegral $ read $ head args
+  let port = fromInteger $ read $ head args
   hOut <- connectTo "0.0.0.0" $ PortNumber port
   hSetBuffering hOut NoBuffering
   piece <- getPiece hOut -- from the server
@@ -34,9 +33,9 @@ loop hOut piece = do
     Second yourError     -> print yourError >> loop hOut piece
     Third newBoard -> do
       putStrLn newBoard -- after your move
-      result <- await hOut
-      case result of
-        Left x      -> print x -- game over
+      nextResponse <- await hOut
+      case nextResponse of
+        Left result -> print result -- game over
         Right board -> print board >> loop hOut piece -- after their move
 
 getPiece :: Handle -> IO Piece
@@ -45,7 +44,6 @@ getPiece hOut = do
   let piece = read str :: Piece
   putStrLn $ "You are playing piece " ++ show piece
   return piece
-
 
 request :: Handle -> String -> IO YourTurnResponse
 request h req = do

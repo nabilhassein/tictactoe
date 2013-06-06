@@ -1,19 +1,13 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-
 import Network (listenOn, withSocketsDo, accept, PortID(..), Socket)
 import System.Environment (getArgs)
-import System.IO (hSetBuffering, hGetLine, hPutStrLn, BufferMode(..), Handle)
-import Control.Concurrent (forkIO)
-import Control.Monad (forever)
-
-import TicTacToe
+import System.IO (hSetBuffering, hPutStrLn, BufferMode(..))
 
 main :: IO ()
 main = withSocketsDo $ do
     args <- getArgs
-    let port = fromIntegral $ read $ head args
+    let port = fromInteger $ read $ head args
     sock <- listenOn $ PortNumber port
-    putStrLn $ "Listening on " ++ show port
+    putStrLn $ "Listening on " ++ head args
     sockHandler sock
 
 sockHandler :: Socket -> IO ()
