@@ -1,7 +1,7 @@
 import Types
 import qualified Data.Map as Map
 import Network (withSocketsDo, connectTo, PortID(..))
-import System.IO (hSetBuffering, hGetLine, hPutStrLn, BufferMode(..), Handle)
+import System.IO (hSetBuffering, hGetLine, hGetContents, hPutStrLn, BufferMode(..), Handle)
 import System.Environment (getArgs)
 
 emptyBoard :: Board
@@ -19,8 +19,10 @@ main = withSocketsDo $ do
     O -> do
       putStrLn "X moves first."
       -- no way for game to be over after X has moved just once
-      boardDisplay <- await hOut
+      Right boardDisplay <- await hOut
+      putStrLn "O's first await has returned"
       print boardDisplay
+      putStrLn "board should have been printed"
       loop hOut O
 
 loop :: Handle -> Piece -> IO ()
@@ -48,7 +50,7 @@ getPiece hOut = do
 request :: Handle -> String -> IO YourTurnResponse
 request h req = do
   hPutStrLn h req
-  response <- hGetLine h
+  response <- hGetContents h
   return $ case response of
     "Win"            -> First Win
     "Draw"           -> First Draw
@@ -59,9 +61,11 @@ request h req = do
 
 await :: Handle -> IO OtherTurnResponse
 await h = do
-  response <- hGetLine h
+  putStrLn "inside await"
+  response <- hGetContents h
+--  putStrLn $ "got response " ++ response
   case response of
+    "OtherPlayerError" -> print OtherPlayerError >> await h
     "Loss"             -> return $ Left Loss
     "Draw"             -> return $ Left Draw
-    "OtherPlayerError" -> print OtherPlayerError >> await h
-    board              -> return $ Right board
+    board              -> putStrLn "got board" >> return (Right board)

@@ -25,19 +25,19 @@ showBoard board = let showCell :: Maybe Piece -> String
      "\n 3 " ++ spot (1, 3) ++ " | " ++ spot (2, 3) ++ " | " ++ spot (3, 3)
 
 -- client-server logic
-data GameOver =  Win | Loss | Draw
-instance Show GameOver where
-  show Win  = "You won."
-  show Loss = "You lost."
-  show Draw = "Cat's game."
+data GameOver =  Win | Loss | Draw deriving (Show, Read)
+-- instance Show GameOver where
+--   show Win  = "You won."
+--   show Loss = "You lost."
+--   show Draw = "Cat's game."
 
-data YourError = NonEmptySquare | OutOfBounds | BadInput
-instance Show YourError where
-  show NonEmptySquare = "That square is taken. Choose another move."
-  show OutOfBounds    = "Only select coordinates from 1 to 3."
-  show BadInput       = "Couldn't parse that input. Enter your move as (x, y)."
+data YourError = NonEmptySquare | OutOfBounds | BadInput deriving (Show, Read)
+-- instance Show YourError where
+--   show NonEmptySquare = "That square is taken. Choose another move."
+--   show OutOfBounds    = "Only select coordinates from 1 to 3."
+--   show BadInput       = "Couldn't parse that input. Enter your move as (x, y)."
 
-data OtherPlayerError = OtherPlayerError
+data OtherPlayerError = OtherPlayerError deriving Read
 instance Show OtherPlayerError where
   show OtherPlayerError = "The other player made a mistake. Keep waiting."
 

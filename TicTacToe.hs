@@ -37,12 +37,12 @@ threeInARow board piece lane = all (== Just piece) [Map.lookup spot board
 draw :: Board -> Bool
 draw board = Map.size board == 9 && not (win board X) && not (win board O)
 
-gameOver :: Board -> Maybe String
+gameOver :: Board -> (Bool, Maybe Piece)
 gameOver board
-  | win board X = Just "\nPlayer X wins!"
-  | win board O = Just "\nPlayer O wins!"
-  | draw board = Just "\nCat's Game."
-  | otherwise = Nothing
+  | win board X = (True, Just X)
+  | win board O = (True, Just O)
+  | draw board  = (True, Nothing)
+  | otherwise   = (False, Nothing)
 
 makeMove :: Board -> Piece -> Maybe Position -> Either YourError Board
 makeMove _ _ Nothing = Left BadInput
