@@ -19,7 +19,7 @@ main :: IO ()
 main = withSocketsDo $ do
   args <- getArgs
   let port = fromInteger $ read $ head args
-  hOut <- connectTo "192.168.1.148" $ PortNumber port
+  hOut <- connectTo "0.0.0.0" $ PortNumber port
   hSetBuffering hOut NoBuffering
   piece <- getPiece hOut
   case piece of
