@@ -35,3 +35,5 @@ The port number in use on the server running at nabilhassein.com is 443 because 
 # TODOs
   - better handling of user input when it is not their turn
   - configure firewall and stop using port 443
+  - graceful handling of lost connections
+  - better user interface
