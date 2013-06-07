@@ -2,15 +2,15 @@
 
 A networked tic-tac-toe program for two human players.
 
-Design goal was a thin client and a fat server, but server is pretty slender as well. (Ask me about the picture I drew to design the program!) Style and architecture are in progress. Currently, the user interface is not very friendly.
+Design goal was a thin client and a fat server, but the server is pretty slender as well. (Ask me about the picture I drew to design the program!) Style and architecture are in progress. Currently, the user interface is not very friendly.
 
 Simply run
 
 > runhaskell client.hs
 
-with no arguments, and you will join the next available game. There is no message while you wait. If you get tired of waiting, you can open a second terminal window to confirm that the program works.
+with no arguments, and you will join the next available game. The first player to connect will play X and go first. There is no message while you wait for a second player to connect. If you get tired of waiting, you can open a second terminal window and run the same command again to play against yourself.
 
-There is no option to select your opponent.
+There is no option to manually select your opponent.
 
 # Usage
 
