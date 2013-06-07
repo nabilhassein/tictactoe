@@ -1,11 +1,19 @@
 import Types
-import qualified Data.Map as Map
 import Network (withSocketsDo, connectTo, PortID(..))
-import System.IO (hSetBuffering, hGetLine, hGetContents, hPutStrLn, BufferMode(..), Handle)
+import System.IO (hSetBuffering, hGetLine, hPutStrLn, BufferMode(..), Handle)
 import System.Environment (getArgs)
 
-emptyBoard :: Board
-emptyBoard = Map.empty
+-- don't read this function as code; instead look at it as a picture
+prettyPrintBoard :: String -> String
+prettyPrintBoard [tl, tm, tr,
+                  ml, mm, mr,
+                  bl, bm, br] =
+  "\n   1   2   3 "                                 ++
+  "\n 1 " ++ [tl] ++ " | " ++ [tm] ++ " | " ++ [tr] ++
+  "\n  ---|---|---"                                  ++
+  "\n 2 " ++ [ml] ++ " | " ++ [mm] ++ " | " ++ [mr] ++
+  "\n  ---|---|---"                                  ++
+  "\n 3 " ++ [bl] ++ " | " ++ [bm] ++ " | " ++ [br]
 
 main :: IO ()
 main = withSocketsDo $ do
@@ -15,30 +23,8 @@ main = withSocketsDo $ do
   hSetBuffering hOut NoBuffering
   piece <- getPiece hOut -- from the server
   case piece of
-    X -> print emptyBoard >> loop hOut X
-    O -> do
-      putStrLn "X moves first."
-      -- no way for game to be over after X has moved just once
-      Right boardDisplay <- await hOut
-      putStrLn "O's first await has returned"
-      print boardDisplay
-      putStrLn "board should have been printed"
-      loop hOut O
-
-loop :: Handle -> Piece -> IO ()
-loop hOut piece = do
-  putStrLn $ "\nPlayer " ++ show piece ++ ", move in the form (x, y)."
-  move <- getLine
-  response <- request hOut move
-  case response of
-    First gameOver       -> print gameOver
-    Second yourError     -> print yourError >> loop hOut piece
-    Third newBoard -> do
-      putStrLn newBoard -- after your move
-      nextResponse <- await hOut
-      case nextResponse of
-        Left result -> print result -- game over
-        Right board -> print board >> loop hOut piece -- after their move
+    X -> move hOut X
+    O -> wait hOut O
 
 getPiece :: Handle -> IO Piece
 getPiece hOut = do
@@ -47,10 +33,29 @@ getPiece hOut = do
   putStrLn $ "You are playing piece " ++ show piece
   return piece
 
+wait :: Handle -> Piece -> IO ()
+wait h piece = do
+  response <- hGetLine h
+  case response of
+    "Draw"             -> print Draw
+    "Loss"             -> print Loss
+    "OtherPlayerError" -> print OtherPlayerError >> wait h piece
+    board              -> putStrLn (prettyPrintBoard board) >> move h piece
+
+move :: Handle -> Piece -> IO ()
+move h piece = do
+  putStrLn $ "\nPlayer " ++ show piece ++ ", move in the form (x, y)."
+  input <- getLine
+  response <- request h input
+  case response of
+    First gameOver   -> print gameOver
+    Second yourError -> print yourError                      >> move h piece
+    Third newBoard   -> putStrLn (prettyPrintBoard newBoard) >> wait h piece
+
 request :: Handle -> String -> IO YourTurnResponse
 request h req = do
   hPutStrLn h req
-  response <- hGetContents h
+  response <- hGetLine h
   return $ case response of
     "Win"            -> First Win
     "Draw"           -> First Draw
@@ -58,14 +63,3 @@ request h req = do
     "OutOfBounds"    -> Second OutOfBounds
     "BadInput"       -> Second BadInput
     board            -> Third board
-
-await :: Handle -> IO OtherTurnResponse
-await h = do
-  putStrLn "inside await"
-  response <- hGetContents h
---  putStrLn $ "got response " ++ response
-  case response of
-    "OtherPlayerError" -> print OtherPlayerError >> await h
-    "Loss"             -> return $ Left Loss
-    "Draw"             -> return $ Left Draw
-    board              -> putStrLn "got board" >> return (Right board)
