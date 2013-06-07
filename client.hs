@@ -18,8 +18,11 @@ prettyPrintBoard [tl, tm, tr,
 main :: IO ()
 main = withSocketsDo $ do
   args <- getArgs
-  let port = fromInteger $ read $ head args
-  hOut <- connectTo "0.0.0.0" $ PortNumber port
+  let (hostname, port) = case args of
+        [] -> ("nabilhassein.com", "443")
+        [name] -> (name, "8000")
+        _ -> (args !! 0, args !! 1)
+  hOut <- connectTo hostname $ PortNumber $ fromInteger $ read port
   hSetBuffering hOut NoBuffering
   piece <- getPiece hOut
   case piece of

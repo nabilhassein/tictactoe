@@ -10,7 +10,9 @@ import Control.Concurrent (forkIO)
 main :: IO ()
 main = withSocketsDo $ do
     args <- getArgs
-    let port = fromInteger $ read $ head args
+    let port = case args of
+          [] -> 443
+          _ -> fromInteger $ read $ head args
     sock <- listenOn $ PortNumber port
     putStrLn $ "Listening on " ++ head args
     sockHandler sock
