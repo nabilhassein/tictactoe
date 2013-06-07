@@ -5,7 +5,6 @@ module TicTacToe where
 import           Types
 import qualified Data.Map as Map
 
--- useful helper functions and variables
 other :: Piece -> Piece
 other X = O
 other O = X
@@ -26,7 +25,6 @@ winningPositions = [map (1,) legal, -- first three are vertical
                     map (\x -> (x, x)) legal, -- last two are diagonal
                     [(x, y) | x <- legal, y <- legal, x + y == 4]]
 
--- game logic
 win :: Board -> Piece -> Bool
 win board piece = any (threeInARow board piece) winningPositions
 

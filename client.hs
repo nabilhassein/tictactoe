@@ -10,18 +10,18 @@ prettyPrintBoard [tl, tm, tr,
                   bl, bm, br] =
   "\n   1   2   3 "                                 ++
   "\n 1 " ++ [tl] ++ " | " ++ [tm] ++ " | " ++ [tr] ++
-  "\n  ---|---|---"                                  ++
+  "\n  ---|---|---"                                 ++
   "\n 2 " ++ [ml] ++ " | " ++ [mm] ++ " | " ++ [mr] ++
-  "\n  ---|---|---"                                  ++
+  "\n  ---|---|---"                                 ++
   "\n 3 " ++ [bl] ++ " | " ++ [bm] ++ " | " ++ [br]
 
 main :: IO ()
 main = withSocketsDo $ do
   args <- getArgs
   let port = fromInteger $ read $ head args
-  hOut <- connectTo "0.0.0.0" $ PortNumber port
+  hOut <- connectTo "192.168.1.148" $ PortNumber port
   hSetBuffering hOut NoBuffering
-  piece <- getPiece hOut -- from the server
+  piece <- getPiece hOut
   case piece of
     X -> move hOut X
     O -> wait hOut O
